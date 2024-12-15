@@ -336,6 +336,21 @@ class Student(models.Model):
             self.invoice.forgive_date is None or now() > self.invoice.forgive_date
         )
 
+    def get_available_units(self) -> QuerySet[Unit]:
+        return Unit.objects.exclude(
+            group__bonuslevel__level__gt=self.last_level_seen
+        )
+
+    def get_available_bonus_units(self) -> QuerySet[Unit]:
+        return Unit.objects.filter(
+            group__bonuslevel__level__lte=self.last_level_seen
+        )
+
+    def get_unavailable_bonus_units(self) -> QuerySet[Unit]:
+        return Unit.objects.filter(
+            group__bonuslevel__level__gt=self.last_level_seen
+        )
+
 
 class Invoice(models.Model):
     """Billing information object for students."""
